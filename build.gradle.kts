@@ -5,6 +5,32 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.4"
 	kotlin("jvm") version "1.9.20"
 	kotlin("plugin.spring") version "1.9.20"
+	id("jacoco")
+}
+
+jacoco {
+	toolVersion = "0.8.7"
+	reportsDirectory.set(layout.buildDirectory.dir("my-custom-dir"))
+}
+
+tasks.withType<JacocoReport> {
+	reports {
+		xml.required.set(true)
+		csv.required.set(true)
+		html.required.set(true)
+	}
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.map {
+			fileTree(it).apply {
+				exclude( "**/SpringBootPracticeWithKotlinApplication**")
+			}
+		}))
+	}
+}
+
+tasks.withType<Test> {
+	useJUnitPlatform() // Note: automatically generated when creating project
+	finalizedBy(tasks.jacocoTestReport)
 }
 
 group = "dev.vengateshm"
